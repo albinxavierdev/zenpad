@@ -1,73 +1,122 @@
-# Welcome to your Lovable project
+# 🧘 ZenPad (Web Version)
 
-## Project info
+ZenPad is a minimalist, distraction-free writing application designed to help you focus and let your thoughts flow effortlessly. Originally built for macOS, this is the web version built using React and Vite for blazing-fast performance and simplicity.
 
-**URL**: https://lovable.dev/projects/0e91d612-1ccc-46b0-86a2-421339f181a8
+## 🌐 Live Demo
+[Coming Soon...]
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 🚀 Features
 
-**Use Lovable**
+- 🧘‍♂️ Clean, distraction-free UI
+- 🌙 Dark and light modes
+- ✍️ Autosave to local storage
+- ⌨️ Fullscreen writing experience
+- 📄 Export to `.txt`
+- 🔤 Custom font options
+- 🔊 Optional typewriter sound effects (upcoming)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0e91d612-1ccc-46b0-86a2-421339f181a8) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🛠️ Tech Stack
 
-**Use your preferred IDE**
+- **React** – UI library
+- **Vite** – Fast development and build tool
+- **TypeScript** *(optional)* – For type safety
+- **Tailwind CSS** – Styling (optional but recommended)
+- **localStorage** – For persisting content locally
+- **HTML5 + CSS3** – Core web standards
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 📁 Project Structure
 
-Follow these steps:
+```bash
+zenpad-web/
+├── public/
+│   └── index.html
+├── src/
+│   ├── components/
+│   │   └── Editor.jsx
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── styles/
+│       └── index.css
+├── package.json
+├── vite.config.js
+└── README.md
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## ⚙️ Installation & Development
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. **Clone the repository**
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+git clone https://github.com/your-username/zenpad-web.git
+cd zenpad-web
+```
+
+2. **Install dependencies**
+
+```bash
+npm install
+```
+
+3. **Start the development server**
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+4. **Build for production**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run build
+```
 
-**Use GitHub Codespaces**
+5. **Preview production build**
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+npm run preview
+```
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## 📦 Features in Progress
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- Cloud sync (using Supabase/Firebase)
+- GitHub/GDrive backup
+- Prompt generator for daily writing
+- Word/character counter
+- Mobile support (PWA)
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/0e91d612-1ccc-46b0-86a2-421339f181a8) and click on Share -> Publish.
+## 🙌 Contributing
 
-## Can I connect a custom domain to my Lovable project?
+Pull requests are welcome! If you want to contribute:
 
-Yes, you can!
+- Fork the repository
+- Create a new branch (`git checkout -b feature/your-feature`)
+- Commit your changes
+- Push to your fork
+- Open a PR
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 📜 License
+
+MIT License. Feel free to fork, clone, and remix ZenPad.
+
+---
+
+## 💡 Inspiration
+
+ZenPad is inspired by apps like [iA Writer](https://ia.net/writer), [Bear](https://bear.app), and the original macOS version of ZenPad. The mission is simple: **Create a beautiful space to write freely**.
+
+---
+
+## 🧘 Stay Focused, Write Free.
