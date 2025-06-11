@@ -1,0 +1,244 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&family=Shadows+Into+Light&family=Caveat:wght@400;500&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 38% 97%;
+    --foreground: 20 6% 10%;
+
+    --card: 30 20% 96%;
+    --card-foreground: 20 6% 10%;
+
+    --popover: 30 20% 96%;
+    --popover-foreground: 20 6% 10%;
+
+    --primary: 20 6% 10%;
+    --primary-foreground: 40 38% 97%;
+
+    --secondary: 45 8% 85%;
+    --secondary-foreground: 20 6% 10%;
+
+    --muted: 45 8% 85%;
+    --muted-foreground: 20 6% 30%;
+
+    --accent: 45 8% 85%;
+    --accent-foreground: 20 6% 10%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 40 38% 97%;
+
+    --border: 20 6% 80%;
+    --input: 45 8% 85%;
+    --ring: 20 6% 30%;
+
+    --radius: 0.5rem;
+    
+    --ruled-line: rgba(0, 0, 0, 0.07);
+    --paper-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    --grid-color: rgba(0, 0, 0, 0.04);
+    --grid-size: 30px;
+    --grid-accent: rgba(25, 118, 210, 0.05);
+  }
+}
+
+@layer base {
+  /* Prevent scrolling on html and body */
+  html, body {
+    @apply overflow-hidden;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+  }
+  
+  * {
+    @apply border-border;
+  }
+  
+  /* Paper texture background pattern */
+  @keyframes subtle-noise {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+  }
+  
+  @keyframes grid-pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans;
+    background-image: var(--paper-texture);
+    background-repeat: repeat;
+    animation: subtle-noise 30s infinite alternate;
+  }
+  
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  .font-sans {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .font-serif {
+    font-family: 'Georgia', 'Times New Roman', serif;
+  }
+  
+  .font-handwritten {
+    font-family: 'Caveat', cursive;
+  }
+  
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground;
+  }
+  
+  /* Ruled paper styling */
+  .writing-area {
+    caret-color: var(--foreground);
+    @apply outline-none resize-none w-full h-full text-foreground text-lg leading-relaxed p-6;
+    font-size: 24px;
+    background-color: transparent;
+    background-image: 
+      /* Paper texture only */
+      var(--paper-texture);
+    background-size: 100px 100px;
+    line-height: 28px;
+    padding-top: 14px; /* Half line height to center text within lines */
+    position: relative;
+  }
+  
+  /* Add left margin line but make it optional */
+  .writing-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 30px;
+    width: 1px;
+    background-color: rgba(220, 38, 38, 0.1);
+    z-index: 1;
+  }
+
+  .fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    background-color: #f8f5f1; /* Light paper color */
+    background-image: var(--paper-texture);
+  }
+  
+  .fullscreen .writing-area {
+    background-color: #f8f5f1; /* Light paper color */
+    color: #1a1613; /* Dark text color */
+    height: 100vh;
+    width: 100vw;
+  }
+  
+  /* Paper texture card styling */
+  .paper-card {
+    @apply bg-card rounded-lg border border-border;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+    background-image: var(--paper-texture);
+  }
+
+  /* Futuristic grid background */
+  .grid-background {
+    position: relative;
+    overflow: hidden;
+    background-color: #fcfbf7;
+    background-image:
+      linear-gradient(to right, rgba(0,0,0,0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0,0,0,0.08) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .grid-background::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+    z-index: -1;
+  }
+
+  .grid-background::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      linear-gradient(to right, var(--grid-accent) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-accent) 1px, transparent 1px);
+    background-size: calc(var(--grid-size) * 4) calc(var(--grid-size) * 4);
+    z-index: -1;
+    opacity: 0.8;
+    animation: grid-pulse 8s infinite ease-in-out;
+  }
+
+  /* Modern futuristic card with soft shadows */
+  .zen-card {
+    @apply bg-card rounded-lg border border-border;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.02);
+    background-image: var(--paper-texture);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .zen-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08), 0 2px 5px rgba(0,0,0,0.04);
+    transform: translateY(-1px);
+  }
+
+  .light-mode-fullscreen {
+    color-scheme: light;
+  }
+
+  .light-mode-fullscreen .fullscreen {
+    background-color: #f8f5f1 !important;
+    color: #1a1613 !important;
+  }
+
+  .light-mode-fullscreen .writing-area {
+    background-color: #f8f5f1 !important;
+    color: #1a1613 !important;
+    background-image: 
+      /* Paper texture only */
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E") !important;
+  }
+
+  .light-mode-fullscreen .progress {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .light-mode-fullscreen .progress-bar {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+  }
+}
