@@ -123,7 +123,7 @@ export const AuthService = {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + '/app',
+        redirectTo: 'https://zenpad0.vercel.app/app',
       },
     });
     if (error) throw error;
