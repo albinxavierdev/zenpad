@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TimerSlider } from '@/components/TimerSlider';
 import { Button } from '@/components/ui/button';
 import { History, Timer, Brain, CircleDot, LogIn, User } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from '@/contexts/AuthContext';
+import { StorageService } from '@/services/StorageService';
 
 interface SetupScreenProps {
   onStart: (duration: number) => void;
@@ -14,6 +15,25 @@ interface SetupScreenProps {
 export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart, onViewHistory }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [duration, setDuration] = useState<number>(5);
+
+  // Load saved duration on mount
+  useEffect(() => {
+    const loadSavedDuration = async () => {
+      try {
+        const savedDuration = await StorageService.getSavedDuration();
+        setDuration(savedDuration);
+      } catch (error) {
+        console.error('Error loading saved duration:', error);
+      }
+    };
+    loadSavedDuration();
+  }, []);
+
+  const handleDurationChange = (newDuration: number) => {
+    setDuration(newDuration);
+    StorageService.saveDuration(newDuration).catch(console.error);
+  };
 
   return (
     <div className="h-screen w-full grid-background flex flex-col overflow-y-auto">
@@ -118,7 +138,13 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart, onViewHistory
             <h3 className="text-xl font-bold text-center mb-6">
               {user ? "start writing" : "try it out"}
             </h3>
-            <TimerSlider onStart={onStart} />
+            <TimerSlider value={duration} onChange={handleDurationChange} />
+            <Button 
+              className="w-full"
+              onClick={() => onStart(duration)}
+            >
+              Start Writing
+            </Button>
             {!user && (
               <p className="text-sm text-center text-muted-foreground mt-4">
                 Sign up to save your sessions and get AI insights

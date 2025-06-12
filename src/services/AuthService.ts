@@ -117,5 +117,15 @@ export const AuthService = {
     return supabase.auth.onAuthStateChange((event, session) => {
       callback(session?.user ?? null);
     });
-  }
+  },
+
+  async signInWithGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/app',
+      },
+    });
+    if (error) throw error;
+  },
 }; 

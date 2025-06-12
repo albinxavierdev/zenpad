@@ -41,27 +41,48 @@ export const WritingScreen: React.FC<WritingScreenProps> = ({
   const handleComplete = async (text: string) => {
     if (!session) return;
     
-    try {
-      // Update the session with the written text
-      await StorageService.updateSession(session.id, { text });
-      
-      // Get the updated session
-      const updatedSession = await StorageService.getSession(session.id);
-      if (!updatedSession) {
-        throw new Error('Session not found after update');
+    const maxRetries = 3;
+    let retryCount = 0;
+    let lastError: Error | null = null;
+    
+    while (retryCount < maxRetries) {
+      try {
+        // Update the session with the written text
+        await StorageService.updateSession(session.id, { text });
+        
+        // Get the updated session
+        const updatedSession = await StorageService.getSession(session.id);
+        if (!updatedSession) {
+          throw new Error('Session not found after update');
+        }
+        
+        // Verify the content was saved correctly
+        if (updatedSession.text !== text) {
+          throw new Error('Session content mismatch after update');
+        }
+        
+        // Pass the complete session to the parent
+        onComplete(updatedSession);
+        return; // Success, exit the function
+      } catch (error) {
+        lastError = error as Error;
+        console.error(`Error completing session (attempt ${retryCount + 1}/${maxRetries}):`, error);
+        retryCount++;
+        
+        if (retryCount < maxRetries) {
+          // Wait before retrying (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
+        }
       }
-      
-      // Pass the complete session to the parent
-      onComplete(updatedSession);
-    } catch (error) {
-      console.error('Error completing session:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save writing session"
-      });
-      onExit();
     }
+    
+    // If we get here, all retries failed
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: `Failed to save writing session after ${maxRetries} attempts. ${lastError?.message || 'Please try again.'}`
+    });
+    onExit();
   };
 
   if (!session) {

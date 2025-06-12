@@ -36,8 +36,35 @@ export const AIReflection: React.FC<AIReflectionProps> = ({
   const { toast } = useToast();
   
   const handleGetReflection = async () => {
-    if (!session.text) {
-      setError('No text provided for analysis');
+    const trimmedText = session.text?.trim();
+    
+    if (!trimmedText) {
+      setError('No text provided for analysis. Please write something first.');
+      toast({
+        variant: "destructive",
+        title: "Empty Content",
+        description: "You need to write something before getting an analysis."
+      });
+      return;
+    }
+    
+    if (trimmedText.length < 50) {
+      setError('Text is too short for meaningful analysis. Please write at least 50 characters.');
+      toast({
+        variant: "destructive",
+        title: "Content Too Short",
+        description: "Please write at least 50 characters for a meaningful analysis."
+      });
+      return;
+    }
+    
+    if (!session.duration || session.duration <= 0) {
+      setError('Session duration is missing or zero. Please ensure you selected a valid timer.');
+      toast({
+        variant: "destructive",
+        title: "Invalid Timer",
+        description: "Session duration is missing or zero. Please ensure you selected a valid timer."
+      });
       return;
     }
     
@@ -45,7 +72,7 @@ export const AIReflection: React.FC<AIReflectionProps> = ({
     setError(null);
     
     try {
-      const response = await AIService.getReflection(session.text, session.duration);
+      const response = await AIService.getReflection(trimmedText, session.duration);
       
       if (response.error) {
         setError(response.error);
@@ -84,8 +111,8 @@ export const AIReflection: React.FC<AIReflectionProps> = ({
           });
         }
       }
-    } catch (err) {
-      console.error('Error:', err);
+    } catch (error) {
+      console.error('Error:', error);
       setError('An unexpected error occurred');
       toast({
         variant: "destructive",
@@ -186,6 +213,12 @@ export const AIReflection: React.FC<AIReflectionProps> = ({
                 </Button>
               </div>
             )}
+          </div>
+          
+          {/* Debug section: show text and timer being analyzed */}
+          <div className="zen-card p-2 mb-4 border border-dashed border-blue-300 bg-blue-50 text-xs text-blue-900">
+            <div><strong>Debug:</strong> <span>Analyzing <b>{session.text.length}</b> chars, <b>{session.text.split(/\s+/).filter(Boolean).length}</b> words, <b>{session.duration}</b> min timer</span></div>
+            <div><strong>First 100 chars:</strong> <pre className="whitespace-pre-wrap inline">{session.text.slice(0, 100)}</pre></div>
           </div>
         </div>
       </div>

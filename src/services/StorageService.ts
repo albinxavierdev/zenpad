@@ -111,6 +111,44 @@ export const StorageService = {
     }
   },
   
+  // Session duration preferences
+  async getSavedDuration(): Promise<number> {
+    const { user, error: authError } = await AuthService.getCurrentUser();
+    if (authError || !user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+      .from('user_settings')
+      .select('session_duration')
+      .eq('user_id', user.id)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return 5; // Default to 5 minutes if no setting found
+      console.error('Error getting saved duration:', error);
+      throw error;
+    }
+
+    return data?.session_duration || 5;
+  },
+
+  async saveDuration(minutes: number): Promise<void> {
+    const { user, error: authError } = await AuthService.getCurrentUser();
+    if (authError || !user) throw new Error('User not authenticated');
+
+    const { error } = await supabase
+      .from('user_settings')
+      .upsert({
+        user_id: user.id,
+        session_duration: minutes,
+        updated_at: new Date().toISOString()
+      });
+
+    if (error) {
+      console.error('Error saving duration:', error);
+      throw error;
+    }
+  },
+  
   // Initialize storage service
   async initialize(): Promise<void> {
     // No initialization needed for Supabase

@@ -34,7 +34,7 @@ export const WritingArea: React.FC<WritingAreaProps> = ({
   const [selectedFont, setSelectedFont] = useState<keyof typeof FONTS>(() => {
     // Load saved font preference from localStorage
     const savedFont = localStorage.getItem('zenpad-font-preference');
-    return (savedFont as keyof typeof FONTS) || 'sans';
+    return (savedFont as keyof typeof FONTS) || 'cursive';
   });
   const [fontSize, setFontSize] = useState<number>(() => {
     const saved = localStorage.getItem('zenpad-font-size');

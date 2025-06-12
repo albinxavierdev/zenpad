@@ -43,6 +43,27 @@ export const SessionReview: React.FC<SessionReviewProps> = ({
   
   const analysis: WritingAnalysis | null = session.reflection ? JSON.parse(session.reflection) : null;
   
+  // Merge backend and AI metrics, prefer backend for most fields
+  let metrics = (analysis?.metrics || {}) as any;
+  if (analysis) {
+    metrics = {
+      ...metrics,
+      // Prefer backend-calculated values for these fields
+      wordCount: metrics.wordCount,
+      characterCount: metrics.characterCount,
+      typingSpeed: metrics.typingSpeed,
+      vocabularyDiversity: metrics.vocabularyDiversity,
+      averageSentenceLength: metrics.averageSentenceLength,
+      sentenceLengthStdDev: metrics.sentenceLengthStdDev,
+      paragraphs: metrics.paragraphs,
+      mostRepeatedWords: metrics.mostRepeatedWords,
+      longestStreak: metrics.longestStreak,
+      // Use AI values for these if present
+      passiveVoicePercent: metrics.passiveVoicePercent ?? 'N/A',
+      fleschKincaidGrade: metrics.fleschKincaidGrade ?? 'N/A',
+    };
+  }
+  
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(session.text);
@@ -208,8 +229,8 @@ export const SessionReview: React.FC<SessionReviewProps> = ({
 
               {/* Analysis cards */}
               <div className="space-y-6">
-                {/* Metrics */}
-                {analysis.metrics && typeof analysis.metrics === 'object' ? (
+                {/* Metrics Card: Quantitative and Readability Metrics */}
+                {analysis.metrics && typeof analysis.metrics === 'object' && (
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-base flex items-center gap-2">
@@ -228,138 +249,147 @@ export const SessionReview: React.FC<SessionReviewProps> = ({
                           <p className="text-2xl font-bold">{analysis.metrics.characterCount ?? 0}</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">typing speed</p>
-                          <p className="text-2xl font-bold">{analysis.metrics.typingSpeed ?? 0} wpm</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">vocabulary</p>
-                          <p className="text-2xl font-bold">{((analysis.metrics.vocabularyDiversity ?? 0) * 100).toFixed(1)}%</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">avg sentence length</p>
-                          <p className="text-2xl font-bold">{(analysis.metrics.averageSentenceLength ?? 0).toFixed(1)}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">sentence std dev</p>
-                          <p className="text-2xl font-bold">{(analysis.metrics.sentenceLengthStdDev ?? 0).toFixed(1)}</p>
-                        </div>
-                        <div className="space-y-1">
                           <p className="text-sm text-muted-foreground">paragraphs</p>
                           <p className="text-2xl font-bold">{analysis.metrics.paragraphs ?? 0}</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">most repeated</p>
-                          <p className="text-2xl font-bold">{Array.isArray(analysis.metrics.mostRepeatedWords) ? analysis.metrics.mostRepeatedWords.join(', ') : ''}</p>
+                          <p className="text-sm text-muted-foreground">typing speed (WPM)</p>
+                          <p className="text-2xl font-bold">{analysis.metrics.typingSpeed ?? 0}</p>
+                          <p className="text-xs text-muted-foreground">(calculated as (characters / 5) / minutes)</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">longest streak</p>
-                          <p className="text-2xl font-bold">{analysis.metrics.longestStreak ?? 0} min</p>
+                          <p className="text-sm text-muted-foreground">time taken (min)</p>
+                          <p className="text-2xl font-bold">{analysis.metrics.timeTaken ?? 0}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">avg words/sentence</p>
+                          <p className="text-2xl font-bold">{analysis.metrics.avgWordsPerSentence?.toFixed(1) ?? 0}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">avg sentence length</p>
+                          <p className="text-2xl font-bold">{analysis.metrics.avgSentenceLength?.toFixed(1) ?? 0}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">unique words</p>
+                          <p className="text-2xl font-bold">{analysis.metrics.uniqueWords ?? 0}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">repetition rate</p>
+                          <p className="text-2xl font-bold">{(analysis.metrics.repetitionRate * 100).toFixed(1)}%</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">grammar errors</p>
+                          <p className="text-2xl font-bold">{analysis.metrics.grammarErrors ?? 0}</p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-sm text-muted-foreground">passive voice %</p>
-                          <p className="text-2xl font-bold">{analysis.metrics.passiveVoicePercent ?? 'N/A'}</p>
+                          <p className="text-2xl font-bold">{analysis.metrics.passiveVoicePercent ?? 0}</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">Flesch-Kincaid grade</p>
-                          <p className="text-2xl font-bold">{analysis.metrics.fleschKincaidGrade ?? 'N/A'}</p>
+                          <p className="text-sm text-muted-foreground">Flesch-Kincaid Grade</p>
+                          <p className="text-2xl font-bold">{analysis.metrics.fleschKincaidGrade ?? 0}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">Flesch Reading Ease</p>
+                          <p className="text-2xl font-bold">{analysis.metrics.fleschReadingEase ?? 0}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">Gunning Fog Index</p>
+                          <p className="text-2xl font-bold">{analysis.metrics.gunningFogIndex ?? 0}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">SMOG Index</p>
+                          <p className="text-2xl font-bold">{analysis.metrics.smogIndex ?? 0}</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                ) : (
-                  (() => {
-                    console.error('Invalid or missing metrics:', analysis.metrics);
-                    return (
-                      <div className="text-destructive text-sm p-4 border border-destructive rounded">
-                        <strong>Error:</strong> Writing metrics are missing or invalid.<br />
-                        Please try generating the analysis again.<br />
-                      </div>
-                    );
-                  })()
                 )}
 
-                {/* Strengths */}
-                {Array.isArray(analysis.strengths) && analysis.strengths.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4" />
-                        key strengths
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2">
-                        {analysis.strengths.map((strength, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <Check className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
-                            <span className="text-sm">{strength}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Areas for Improvement */}
-                {Array.isArray(analysis.areasForImprovement) && analysis.areasForImprovement.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Target className="h-4 w-4" />
-                        areas for improvement
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2">
-                        {analysis.areasForImprovement.map((area, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <Target className="h-4 w-4 text-blue-500 mt-1 flex-shrink-0" />
-                            <span className="text-sm">{area}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Recommendations */}
-                {Array.isArray(analysis.recommendations) && analysis.recommendations.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Lightbulb className="h-4 w-4" />
-                        recommendations
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2">
-                        {analysis.recommendations.map((rec, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <Lightbulb className="h-4 w-4 text-yellow-500 mt-1 flex-shrink-0" />
-                            <span className="text-sm">{rec}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Summary */}
-                {typeof analysis.summary === 'string' && analysis.summary.trim().length > 0 && (
+                {/* Qualitative Analysis */}
+                {analysis.qualitative && typeof analysis.qualitative === 'object' && (
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-base flex items-center gap-2">
                         <BrainCircuit className="h-4 w-4" />
-                        summary
+                        qualitative analysis
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="font-semibold">Clarity</p>
+                          <p className="text-sm text-muted-foreground">{analysis.qualitative.clarity}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Coherence</p>
+                          <p className="text-sm text-muted-foreground">{analysis.qualitative.coherence}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Tone & Voice</p>
+                          <p className="text-sm text-muted-foreground">{analysis.qualitative.toneAndVoice}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Engagement</p>
+                          <p className="text-sm text-muted-foreground">{analysis.qualitative.engagement}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Purpose Fulfillment</p>
+                          <p className="text-sm text-muted-foreground">{analysis.qualitative.purposeFulfillment}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Creativity / Originality</p>
+                          <p className="text-sm text-muted-foreground">{analysis.qualitative.creativity}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Grammar & Syntax</p>
+                          <p className="text-sm text-muted-foreground">{analysis.qualitative.grammarAndSyntax}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Structure & Format</p>
+                          <p className="text-sm text-muted-foreground">{analysis.qualitative.structureAndFormat}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Suggestions */}
+                {Array.isArray(analysis.suggestions) && analysis.suggestions.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Lightbulb className="h-4 w-4" />
+                        suggestions
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2">
+                        {analysis.suggestions.map((imp: string, i: number) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <Lightbulb className="h-4 w-4 text-yellow-500 mt-1 flex-shrink-0" />
+                            <span className="text-sm">{imp}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* AI Reflection */}
+                {typeof analysis.reflection === 'string' && analysis.reflection.trim().length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <BrainCircuit className="h-4 w-4" />
+                        AI Reflection
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="prose max-w-none">
-                        {analysis.summary.split('\n').map((paragraph, i) => (
-                          <p key={i} className="mb-4 last:mb-0 text-sm text-muted-foreground">
-                            {paragraph}
-                          </p>
-                        ))}
+                        <p className="mb-4 last:mb-0 text-sm text-muted-foreground">
+                          {analysis.reflection}
+                        </p>
                       </div>
                     </CardContent>
                   </Card>

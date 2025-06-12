@@ -12,12 +12,13 @@ import { AuthLayout } from "@/components/auth/AuthLayout";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { ProfilePage } from "./pages/ProfilePage";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { SetupScreen } from "@/screens/SetupScreen";
 import { ReviewScreen } from "@/screens/ReviewScreen";
 import { WritingScreen } from "@/screens/WritingScreen";
 import { HistoryScreen } from "@/screens/HistoryScreen";
+import { StorageService } from "@/services/StorageService";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -73,18 +74,48 @@ const AppContent = () => {
   const navigate = useNavigate();
 
   function SetupScreenWrapper() {
+    const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
+
+    const handleStart = (duration: number) => {
+      setSelectedDuration(duration);
+      navigate('/app/write', { state: { duration } });
+    };
+
     return (
       <SetupScreen
-        onStart={() => navigate('/app/write')}
+        onStart={handleStart}
         onViewHistory={() => navigate('/app/history')}
       />
     );
   }
 
   function WritingScreenWrapper() {
+    const location = useLocation();
+    const [duration, setDuration] = useState(() => {
+      // Get duration from navigation state, fallback to saved duration
+      return location.state?.duration || 5;
+    });
+
+    useEffect(() => {
+      // Only load saved duration if we don't have one from navigation state
+      if (!location.state?.duration) {
+        const loadSavedDuration = async () => {
+          try {
+            const savedDuration = await StorageService.getSavedDuration();
+            setDuration(savedDuration);
+          } catch (error) {
+            console.error('Error loading saved duration:', error);
+            // Keep default value if there's an error
+          }
+        };
+        
+        loadSavedDuration();
+      }
+    }, [location.state?.duration]);
+
     return (
       <WritingScreen
-        duration={5}
+        duration={duration}
         onComplete={(session) => navigate('/app/review', { state: { session } })}
         onExit={() => navigate('/app')}
       />

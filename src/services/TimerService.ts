@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 export const useTimer = (initialDuration: number, onComplete: () => void) => {
@@ -44,6 +43,17 @@ export const useTimer = (initialDuration: number, onComplete: () => void) => {
   const percentRemaining = useCallback(() => {
     return (timeRemaining / duration) * 100;
   }, [timeRemaining, duration]);
+  
+  useEffect(() => {
+    const newDuration = initialDuration * 60;
+    setDuration(newDuration);
+    setTimeRemaining(newDuration);
+    setIsRunning(false);
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, [initialDuration]);
   
   useEffect(() => {
     if (isRunning) {

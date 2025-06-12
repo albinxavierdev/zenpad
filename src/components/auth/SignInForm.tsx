@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { AuthService } from '@/services/AuthService';
 
 const signInSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -19,6 +20,7 @@ type SignInFormData = z.infer<typeof signInSchema>;
 export function SignInForm() {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   
   const {
     register,
@@ -27,6 +29,18 @@ export function SignInForm() {
   } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema)
   });
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await AuthService.signInWithGoogle();
+    } catch (err) {
+      // Optionally show error to user
+      console.error('Google sign-in error:', err.message);
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   const onSubmit = async (data: SignInFormData) => {
     try {
@@ -47,6 +61,17 @@ export function SignInForm() {
           Sign in to your account to continue
         </p>
       </div>
+
+      {/* Google Sign-In Button */}
+      <Button
+        type="button"
+        className="w-full flex items-center justify-center gap-2 bg-white border text-black hover:bg-gray-100 mb-4"
+        onClick={handleGoogleSignIn}
+        disabled={isGoogleLoading}
+      >
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google" style={{ width: 20, height: 20 }} />
+        {isGoogleLoading ? 'Signing in with Google...' : 'Sign in with Google'}
+      </Button>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">

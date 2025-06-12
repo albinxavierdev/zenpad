@@ -21,6 +21,7 @@ create table if not exists public.user_settings (
     id uuid default uuid_generate_v4() primary key,
     user_id uuid references auth.users(id) on delete cascade not null unique,
     gemini_api_key text,
+    session_duration integer default 5 check (session_duration >= 1 and session_duration <= 60),
     created_at timestamp with time zone default timezone('utc'::text, now()) not null,
     updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -123,4 +124,5 @@ comment on table public.user_settings is 'Stores user-specific settings like API
 comment on column public.sessions.duration is 'Duration of the writing session in minutes';
 comment on column public.sessions.text is 'The written content of the session';
 comment on column public.sessions.reflection is 'Optional AI-generated reflection on the writing';
-comment on column public.user_settings.gemini_api_key is 'User''s Gemini API key for AI features'; 
+comment on column public.user_settings.gemini_api_key is 'User''s Gemini API key for AI features';
+comment on column public.user_settings.session_duration is 'User''s preferred writing session duration in minutes (1-60)'; 
