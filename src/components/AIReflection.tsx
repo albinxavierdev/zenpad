@@ -153,7 +153,7 @@ export const AIReflection: React.FC<AIReflectionProps> = ({
             
             <div className="space-y-4 mt-4">
               <p className="text-sm text-muted-foreground">
-                get a detailed analysis of your writing session using google's gemini ai. your text will be analyzed for writing skills, strengths, areas for improvement, and suggestions.
+                get a detailed analysis of your writing session using ZenpadAI. your text will be analyzed for writing skills, strengths, areas for improvement, and suggestions.
               </p>
               
               {error && (
